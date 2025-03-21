@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google Meet Clone</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #202124;
+      color: #fff;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    .video-grid {
+      /* flex: 1; */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      /* grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); */
+      gap: 10px;
+      padding: 10px;
+    }
+    .video-container {
+      background-color: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      position: relative;
+    }
+    .video-container video {
+      width: 100%;
+      border-radius: 10px;
+    }
+    .footer {
+      background-color: #202124;
+      padding: 10px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+    .footer button {
+      border: none;
+      padding: 10px 20px;
+      border-radius: 50%;
+      cursor: pointer;
+      color: #fff;
+      font-size: 16px;
+    }
+    .footer button:hover {
+      background-color: #d32f2f;
+    }
+    .button_disabled {
+        background-color: #d32f2f;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="video-grid" id="video-grid">
+      <!-- Video elements will be added dynamically -->
+    </div>
+    <div class="footer">
+      <button id="toggle-audio" class="toggle_active">🎤</button>
+      <button id="toggle-video" class="toggle_active">📹</button>
+      <button id="end-call" class="toggle_active">📞</button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io('http://localhost:3000');
+    const roomId = 'test-room';
+    const peerConnections = {};
+    const videoGrid = document.getElementById('video-grid');
+    let localStream;
+    let localUser = generateRandomString(20);
+
+    const buttons = document.querySelectorAll('.toggle_active')
+    buttons.forEach(button => {
+        button.addEventListener('click', ()=> {
+            button.classList.toggle('button_disabled')
+        })
+    })
+
+    // Get local video and audio stream
+    async function getMedia() {
+      try {
+        localStream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: true,
+        });
+        const videoElement = createVideoElement(localStream, true);
+        videoGrid.appendChild(videoElement);
+
+        socket.emit('join-room', roomId);
+      } catch (error) {
+        console.error('Error accessing media devices:', error);
+      }
+    }
+
+    function generateRandomString(length) {
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let result = '';
+        const charactersLength = characters.length;
+        for (let i = 0; i < length; i++) {
+            result += characters.charAt(Math.floor(Math.random() * charactersLength));
+        }
+        return result;
+    }
+
+    // Create a video element
+    function createVideoElement(stream, muted = false) {
+        if (document.getElementById(`user-streem-id-${localUser}`)) {
+            console.log(`Video element for user ${localUser} already exists.`);
+            return;
+        }
+      const video = document.createElement('video');
+      video.srcObject = stream;
+      video.autoplay = true;
+      video.muted = muted;
+      video.id = `user-streem-id-${localUser}`
+      video.className = 'video-container';
+      return video;
+    }
+
+    // socket.on("all-participants", (participants) => {
+    //     participants.forEach((participantId) => {
+    //         createOffer(participantId); // Initiate a connection with each participant
+    //     });
+    // });
+
+    // Handle user connected
+    socket.on('user-connected', (userId) => {
+      console.log('User connected:', userId);
+      localUser = userId
+      createOffer(userId);
+    });
+
+    // Handle receiving a signal
+    socket.on('receive-signal', async ({ signal, from }) => {
+      if (signal.type === 'offer') {
+        await createAnswer(from, signal);
+      } else if (signal.type === 'answer') {
+        const pc = peerConnections[from];
+        await pc.setRemoteDescription(new RTCSessionDescription(signal));
+      } else if (signal.candidate) {
+        const pc = peerConnections[from];
+        await pc.addIceCandidate(new RTCIceCandidate(signal));
+      }
+    });
+
+    socket.on("user-disconnected", (userId) => {
+        console.log("User disconnected:", userId);
+        if (peerConnections[userId]) {
+            peerConnections[userId].close();
+            delete peerConnections[userId];
+
+            // Optionally, remove the video element of the disconnected user
+            const videoElement = document.getElementById(`user-streem-id-${userId}`);
+            if (videoElement) videoElement.remove();
+        }
+    });
+
+
+    // Create a WebRTC Peer Connection
+    function createPeerConnection(userId) {
+      const pc = new RTCPeerConnection();
+      localStream.getTracks().forEach((track) => pc.addTrack(track, localStream));
+
+      pc.onicecandidate = (event) => {
+        if (event.candidate) {
+          socket.emit('send-signal', { roomId, signal: event.candidate, to: userId });
+        }
+      };
+
+      pc.ontrack = (event) => {
+        const videoElement = createVideoElement(event.streams[0]);
+        videoGrid.appendChild(videoElement);
+      };
+
+      peerConnections[userId] = pc;
+      return pc;
+    }
+
+    // Create and send an offer
+    async function createOffer(userId) {
+      const pc = createPeerConnection(userId);
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      socket.emit('send-signal', { roomId, signal: offer, to: userId });
+    }
+
+    // Create and send an answer
+    async function createAnswer(userId, offer) {
+      const pc = createPeerConnection(userId);
+      await pc.setRemoteDescription(new RTCSessionDescription(offer));
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+      socket.emit('send-signal', { roomId, signal: answer, to: userId });
+    }
+
+    // Handle toggle audio
+    document.getElementById('toggle-audio').addEventListener('click', () => {
+      localStream.getAudioTracks().forEach((track) => (track.enabled = !track.enabled));
+    });
+
+    // Handle toggle video
+    document.getElementById('toggle-video').addEventListener('click', () => {
+      localStream.getVideoTracks().forEach((track) => (track.enabled = !track.enabled));
+    });
+
+    // Handle end call
+    document.getElementById('end-call').addEventListener('click', () => {
+      socket.disconnect();
+      window.location.reload();
+    });
+
+    // Initialize media and join room
+    getMedia();
+  </script>
+</body>
+</html>

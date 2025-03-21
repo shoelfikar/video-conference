@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room - {{roomId}}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col justify-between">
+    <div class="w-full flex">
+        <!-- Main Camera Section (Tetap sama dengan sebelumnya) -->
+        <div class="flex items-center w-full flex-wrap justify-center">
+            <div class="flex items-center justify-center w-full m-2" id="videos-grid">
+                {{!-- <video id="videoPreview" class="max-w-[700px] max-h-[500px] object-cover" autoplay playsinline></video> --}}
+                {{!-- <video id="videoPreview" class="max-w-[700px] max-h-[500px] object-cover" autoplay playsinline></video> --}}
+                {{!-- <div class="bg-gray-800 w-[700px] h-[500px] rounded-lg overflow-hidden" id="videos-grid">
+                    <video id="videoPreview" class="w-full h-full object-cover" autoplay playsinline></video>
+                </div>
+                <div class="bg-gray-800 w-[700px] h-[500px] rounded-lg overflow-hidden" id="videos-grid">
+                    <video id="videoPreview" class="w-full h-full object-cover" autoplay playsinline></video>
+                </div> --}}
+            </div>
+
+        </div>
+        <div class="right-section w-[450px] h-[680px] m-2 bg-white rounded-lg overflow-hidden hidden">
+            <!-- Main Container -->
+            <div class="w-full max-w-md mx-auto rounded-lg shadow-sm">
+                <!-- Header with Close Button -->
+                <div class="flex justify-between items-center p-4">
+                    <h2 class="text-2xl font-medium text-gray-800">Orang</h2>
+                    <button class="text-gray-500 hover:text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                    </button>
+                </div>
+            
+                <!-- Search Box -->
+                <div class="px-4 pb-4">
+                    <div class="relative border border-gray-300 rounded-lg">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </div>
+                    <input type="text" placeholder="Telusuri orang" class="block w-full py-3 pl-10 pr-3 text-gray-700 bg-white rounded-lg focus:outline-none focus:ring-0">
+                    </div>
+                </div>
+            
+                <!-- Section Heading -->
+                <div class="px-4 py-2">
+                    <h3 class="text-sm font-medium text-gray-500">DALAM RAPAT INI</h3>
+                </div>
+                
+                <!-- Contributors Section -->
+                <div class="border-t border-gray-200">
+                    <!-- Contributors Header -->
+                    <div class="flex justify-between items-center px-4 py-4 border-b border-gray-200">
+                    <h4 class="text-lg font-medium text-gray-800">Kontributor</h4>
+                    <div class="flex items-center">
+                        <span class="mr-2 text-lg">1</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-700">
+                        <polyline points="18 15 12 9 6 15"></polyline>
+                        </svg>
+                    </div>
+                    </div>
+                    
+                    <!-- Participant Item -->
+                    <div>
+                        <div class="flex justify-between items-center px-4 py-3">
+                            <div class="flex items-center">
+                                <!-- Avatar Circle -->
+                                <div class="w-10 h-10 bg-teal-800 rounded-full flex items-center justify-center text-white font-semibold text-xl">
+                                    S
+                                </div>
+                                <!-- Name and Role -->
+                                <div class="ml-3">
+                                    <p class="text-base font-medium text-gray-800">Sulfikardi</p>
+                                    <p class="text-sm text-gray-600">Penyelenggara rapat</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Action Buttons -->
+                            <div class="flex items-center">
+                                <!-- Mute Button -->
+                                <button class="p-2 text-gray-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                                    <path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"></path>
+                                    <path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23"></path>
+                                </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+        <div class="chat-section w-[450px] m-2 bg-white h-[680px] rounded-lg shadow-md overflow-hidden relative hidden">
+            <div class="w-full max-w-md">
+                <!-- Header -->
+                <div class="flex justify-between items-center p-5 border-b">
+                    <h1 class="text-2xl font-medium text-gray-800">Pesan dalam panggilan</h1>
+                    <button class="text-gray-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Setting Options -->
+                <div class="p-5 bg-gray-50 rounded-lg mx-4 my-4">
+                    <div class="flex justify-between items-center">
+                        <p class="text-gray-700 text-base">Izinkan siapa saja mengirim pesan</p>
+                        <div class="relative inline-block w-12 h-6 transition duration-200 ease-in-out rounded-full bg-gray-200">
+                            <label for="toggle" class="absolute inset-0 cursor-pointer rounded-full bg-gray-200">
+                                <input type="checkbox" id="toggle" class="sr-only" checked>
+                                <span class="absolute inset-y-0 right-0 w-6 h-6 bg-white rounded-full shadow transition transform translate-x-0 checked:translate-x-6"></span>
+                            </label>
+                            <div class="absolute inset-y-0 right-0 w-6 h-6 bg-white rounded-full shadow transform translate-x-0 transition-transform duration-300 ease-in-out" style="transform: translateX(0)"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="p-5 bg-gray-50 rounded-lg mx-4 my-4">
+                    <p class="text-gray-700 text-[12px]">
+                        Anda dapat menyematkan pesan agar dapat dilihat oleh orang yang bergabung pada lain waktu. Jika keluar dari panggilan, Anda tidak akan dapat mengakses chat ini.
+                    </p>
+                </div>
+
+                <!-- Empty space for chat area -->
+                <div class="chat-groups m-3 overflow-auto h-[300px]">
+
+                </div>
+
+                <!-- Message input area -->
+                <div class="absolute bottom-0 w-full border-t bg-white p-4">
+                    <div class="flex items-center bg-gray-100 rounded-full px-4 py-2">
+                        <input type="text" placeholder="Kirim pesan kepada semua orang" class="bg-transparent flex-grow outline-none text-gray-700" id="input-message">
+                        <button class="text-gray-400 hover:text-gray-600" id="send-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform rotate-45" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Section Footer -->
+    <footer class="w-full bg-black bg-opacity-90 text-white py-2 px-4">
+        <div class="max-w-6xl mx-auto flex items-center justify-center">
+            
+            <!-- Center section with control buttons -->
+            <div class="flex items-center space-x-2">
+                <!-- Microphone toggle -->
+                <button class="bg-gray-700 hover:bg-gray-600 p-3 rounded-full" id="audioControl">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                
+                <!-- Camera toggle -->
+                <button class="bg-gray-700 hover:bg-gray-600 p-3 rounded-full" id="cameraControl">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+                        <path d="M14 6a1 1 0 011 1v4a1 1 0 01-1 1h-1V6h1z" />
+                    </svg>
+                </button>
+                
+                   <!-- Participants/People -->
+                <button class="bg-transparent hover:bg-gray-700 p-2 rounded-full relative participants">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+                    </svg>
+                    <span class="absolute top-0 right-0 bg-gray-200 text-gray-800 text-xs font-semibold rounded-full h-4 w-4 flex items-center justify-center">1</span>
+                </button>
+
+                   <!-- Chat -->
+                <button class="bg-transparent hover:bg-gray-700 p-2 rounded-full chats-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zM7 8H5v2h2V8zm2 0h2v2H9V8zm6 0h-2v2h2V8z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+
+                  <!-- End call button -->
+                <button class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-full flex items-center justify-center" id="left-conference">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                    </svg>
+                </button>
+                
+                
+                <!-- More options -->
+                <button class="bg-gray-700 hover:bg-gray-600 p-3 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/peerjs@1.3.2/dist/peerjs.min.js"></script>
+    <script>
+        const ROOM_ID = '{{ roomId }}'
+    </script>
+
+    <script>
+        //const videoPreview = document.getElementById('videoPreview');
+        const audioControl = document.getElementById('audioControl');
+        const cameraControl = document.getElementById('cameraControl');
+        let currentStream;
+
+          // Media Devices Access
+        async function setupStream(enableAudio = true, enableVideo = true) {
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+            }
+
+            try {
+                const localAudio = JSON.parse(localStorage.getItem("audio"))
+                const localVideo = JSON.parse(localStorage.getItem("video"))
+                currentStream = await navigator.mediaDevices.getUserMedia({
+                    audio: enableAudio,
+                    video: enableVideo
+                });
+                videoPreview.srcObject = currentStream;
+                trackSetting(localAudio, localVideo)
+                updateButtonStyles(localAudio ?? true, localVideo ?? true);
+            } catch (err) {
+                console.error('Error accessing media devices:', err);
+            }
+        }
+
+        // initial config audio and video
+        function trackSetting(localAudio, localVideo) {
+            const audioTracks = currentStream.getTracks().filter(track => track.kind === "audio");
+            const videoTracks = currentStream.getTracks().filter(track => track.kind === "video");
+            audioTracks.forEach(track => track.enabled = localAudio ?? true);
+            videoTracks.forEach(track => track.enabled = localVideo ?? true);
+        }
+
+        // Toggle Controls
+        function toggleTrack(type, button) {
+            const tracks = currentStream.getTracks().filter(track => track.kind === type);
+            const isEnabled = tracks[0].enabled;
+            tracks.forEach(track => track.enabled = !isEnabled);
+            updateButtonStyles(
+                type === 'audio' ? !isEnabled : audioControl.classList.contains('bg-white-500'),
+                type === 'video' ? !isEnabled : cameraControl.classList.contains('bg-white-500')
+            );
+        }
+
+        // Update Button Styles
+        function updateButtonStyles(audioEnabled, videoEnabled) {
+            audioControl.classList.toggle('bg-red-500', !audioEnabled);
+            audioControl.classList.toggle('bg-white-500', audioEnabled);
+            cameraControl.classList.toggle('bg-red-500', !videoEnabled);
+            cameraControl.classList.toggle('bg-white-500', videoEnabled);
+        }
+
+        // Event Listeners
+        audioControl.addEventListener('click', () => toggleTrack('audio', audioControl));
+        cameraControl.addEventListener('click', () => toggleTrack('video', cameraControl));
+
+        // Initial Setup
+       //setupStream(true, true).then(r => console.log('Stream initialized'));
+
+
+        const participans = document.querySelector('.right-section')
+        const chats = document.querySelector('.chat-section')
+        const participantsButton = document.querySelector('.participants')
+        const chatsButton = document.querySelector('.chats-button')
+        const leftConferenceButton = document.querySelector('#left-conference')
+        participantsButton.addEventListener('click', ()=> {
+            chats.classList.add('hidden')
+            participans.classList.toggle('hidden')
+        })
+
+        chatsButton.addEventListener('click', ()=> {
+            chats.classList.toggle('hidden')
+            participans.classList.add('hidden')
+        })
+
+        leftConferenceButton.addEventListener('click', ()=> {
+            window.location.replace(`/`);
+        })
+
+        var socket = io('http://localhost:3000');
+
+        const message = document.getElementById('input-message')
+        const sendButton = document.getElementById('send-button')
+
+        message.addEventListener('keyup', (e)=> {
+            if(e.key == "Enter") {
+                const user = localStorage.getItem("username") ?? "Guest"
+                const send = message.value
+                const elem = `<div class="bg-gray-700 p-2 rounded-lg mb-2">
+                        <p class="text-sm font-semibold">${user}</p>
+                        <p class="text-sm">${message.value}</p>
+                    </div>`
+                socket.emit("message", {user: user, message: send})
+                //chatGroups.innerHTML += elem
+                message.value = ""
+            }
+        })
+
+        sendButton.addEventListener('click', ()=> {
+            const user = localStorage.getItem("username") ?? "Guest"
+            const send = message.value
+            //const elem = `<div class="bg-gray-700 p-2 rounded-lg mb-2">
+            //        <p class="text-sm font-semibold">${user}</p>
+            //        <p class="text-sm">${message.value}</p>
+            //    </div>`
+            socket.emit("message", {user: user, message: send})
+            //chatGroups.innerHTML += elem
+            message.value = ""
+        })
+    </script>
+    <script src="rooms.js"></script>
+</body>
+</html>
